@@ -1,0 +1,17 @@
+TOTAL OPS: 100
+
+bitXor: 7
+bitParity: 11
+anyOddBit: 7
+logicalShift: 5
+rotateRight: 7
+bang: 5
+tmax: 2
+absVal: 3
+divpwr2: 5
+ezFiveEights: 6 (long long is NOT recommanded, you should never use it.)
+isPositive: 4
+isLessOrEqual: 7
+iLog2: 19
+float_half: 7
+float_f2i: 5 (switch is NOT recommanded, but who cares?)
