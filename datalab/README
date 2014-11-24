@@ -9,9 +9,9 @@ bang: 5
 tmax: 2
 absVal: 3
 divpwr2: 5
-ezFiveEights: 6 (long long is NOT recommanded, you should never use it.)
+ezFiveEights: 6 (long long is NOT recommended, you should never use it.)
 isPositive: 4
 isLessOrEqual: 7
 iLog2: 19
 float_half: 7
-float_f2i: 5 (switch is NOT recommanded, but who cares?)
+float_f2i: 5 (switch is NOT recommended, but who cares?)
