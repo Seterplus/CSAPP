@@ -163,7 +163,12 @@ main(int argc, char **argv)
 	Signal(SIGINT,  sigint_handler);   /* ctrl-c */
 	Signal(SIGTSTP, sigtstp_handler);  /* ctrl-z */
 	Signal(SIGCHLD, sigchld_handler);  /* Terminated or stopped child */
-	//Signal(SIGTTIN, SIG_IGN);
+
+	/* SIGTTIN shouldn't be ignored, for that when a background process
+	 * tries to read from the terminal, it should be stopped and waiting
+	 * for being foreground. */
+
+	// Signal(SIGTTIN, SIG_IGN);
 	Signal(SIGTTOU, SIG_IGN);
 
 	/* This one provides a clean way to kill the shell */
@@ -483,8 +488,9 @@ sigchld_handler(int sig)
 			// Should always get here
 			if (WIFSTOPPED(status)) {
 				job->state = ST;
-				printf("Job [%d] (%d) stopped by signal %d\n",
-						job->jid, pid, WSTOPSIG(status));
+				if (WSTOPSIG(status) != SIGTTIN)
+					printf("Job [%d] (%d) stopped by signal %d\n",
+							job->jid, pid, WSTOPSIG(status));
 			} else if (WIFSIGNALED(status)) {
 				printf("Job [%d] (%d) terminated by signal %d\n",
 						job->jid, pid, WTERMSIG(status));
