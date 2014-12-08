@@ -178,6 +178,7 @@ int anyOddBit(int x) {
  *   Rating: 3 
  */
 int logicalShift(int x, int n) {
+  // EVIL TRICK: long long
   int t = 1 << (31 ^ n);
   return ((x >> n) + t) ^ t;
 }
@@ -344,6 +345,7 @@ unsigned float_half(unsigned uf) {
  *   Rating: 4
  */
 int float_f2i(unsigned uf) {
+  // EVIL TRICK: switch
   unsigned sign = uf & 0x80000000;
   unsigned exp = (uf >> 23) & 0xFF;
   unsigned frac = uf & 0x7FFFFF;
