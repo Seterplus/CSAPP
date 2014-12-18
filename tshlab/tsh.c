@@ -232,10 +232,10 @@ eval(char *cmdline)
 	if (tok.argv[0] == NULL)  return;   /* ignore empty lines */
 
 	int input_fd = tok.infile ?
-		Open(tok.infile, O_RDONLY, 0) :
+		Open(tok.infile, O_RDONLY | O_CLOEXEC, 0) :
 		STDIN_FILENO;
 	int output_fd = tok.outfile ?
-		Open(tok.outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644) :
+		Open(tok.outfile, O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0644) :
 		STDOUT_FILENO;
 
 	pid_t pid;
