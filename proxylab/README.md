@@ -18,7 +18,7 @@ make; cd tiny; make; cd ..
 ``` bash
 ./driver.py
 ```
-- **单个part测试**：在testdriver目录下执行以下语句，其中_<part>_为测试part编号（1/2/3），_<port>_为proxy运行的端口号
+- **单个part测试**：在testdriver目录下执行以下语句，其中_\<part\>_为测试part编号（1/2/3），_\<port\>_为proxy运行的端口号
 ``` bash
 ./test-driver.pl -t <part> -p <port>
 ```
