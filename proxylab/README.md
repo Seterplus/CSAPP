@@ -20,7 +20,7 @@ make; cd tiny; make; cd ..
 ```
 - **单个part测试**：在testdriver目录下执行以下语句，其中_\<part\>_为测试part编号（1/2/3），_\<port\>_为proxy运行的端口号
 ``` bash
-./test-driver.pl -t <part> -p <port>
+./test-proxy.pl -t <part> -p <port>
 ```
 - **制作提交文件**：请确认你的所有文件都在proxylab-handout目录下，且在此目录make可以生成可执行文件proxy。在proxylab-handout目录下执行以下语句即可在proxylab-handout所在目录生成提交文件**proxylab.tar**
 ``` bash
