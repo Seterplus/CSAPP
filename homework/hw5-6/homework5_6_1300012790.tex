@@ -1,0 +1,134 @@
+\documentclass {article}
+\usepackage {geometry}
+\usepackage {CJK}
+\usepackage {amsmath}
+\usepackage {amssymb}
+\usepackage {indentfirst}
+\usepackage {listings}
+\usepackage {courier}
+
+\lstset{basicstyle=\ttfamily,breaklines=true,numbers=left}
+
+\begin{document}
+  \begin {CJK*} {UTF8} {gbsn}
+    \title {\textbf {\Huge Homework 5 \& Homework 6}}
+		\author {郭天魁 \\ 信息科学技术学院 \\ 1300012790}
+
+		\maketitle
+
+		\section{Homework 5}
+			\subsection{3.61}
+				\begin{lstlisting}[language=C]
+int fix_var_prod_ele(int n, int A[n][n], int B[n][n], int i, int k) {
+	register int *Aptr = A[i];
+	register int *Bptr = &B[n - 1][k];
+	register int j = n;
+	register int result = 0;
+	register int N = n;
+	while(--j != -1) {
+		result += Aptr[j] * (*Bptr);
+		Bptr -= N;
+	}
+	return result;
+}
+				\end{lstlisting}
+
+				编译后，循环体中指令如下：
+				\begin{lstlisting}[language={[x86masm]Assembler}]
+.L3:
+	movl	(%esi,%edx,4), %ebx
+	imull	(%ecx), %ebx
+	addl	%ebx, %eax
+	addl	%edi, %ecx
+	subl	$1, %edx
+	cmpl	$-1, %edx
+	jne	.L3
+				\end{lstlisting}
+
+				将循环变量$j$由从$0$到$n-1$循环替换为从$n-1$到$0$循环，可以避免在循环体中使用值$n$。\\
+
+				需要注意的是必须使用gcc的-O1编译选项。如果使用-O0，则imull指令中会用到\%edx和\%eax两个临时寄存器变量，导致使用的五个值至少有一个需要被保存在内存中。\\
+
+			\subsection{3.62}
+				A. $M=13.$\\
+
+				B. i: \%edi, j: \%ecx.\\
+
+				C.
+				\begin{lstlisting}[language=C]
+void transpose(int M, int A[M][M]) {
+	int i, j;
+	int M4 = M << 2;
+	int eax, *ebx, *esi, edx;
+	for (i = 0; i < M; i++) {
+		ebx = &A[0][i];
+		esi = A[i];
+		for (j = 0; j < i; j++) {
+			eax = *ebx;
+			edx = esi[j];
+			esi[j] = eax;
+			*ebx = edx;
+			ebx = (void*)ebx + M4;
+		}
+	}
+}
+				\end{lstlisting}
+			
+			\subsection{3.64}
+				A. 8(\%ebp)是result的地址，12(\%ebp)是s1.a，16(\%ebp)是s1.p.\\
+
+				B. 从高到低依次为s2.diff, s2.sum, s1.p, s1.a, \&s2.\\
+
+				C. 将参数结构体内的变量由低到高存入栈中。\\
+
+				D. 将返回值的结构体地址压栈，在函数中直接操作结构体。\\
+
+		\section{Homework 6}
+			\subsection{3.67}
+				A. e1.p: 0, e1.y: 4, e2.x: 0, e2.next: 4.\\
+
+				B. 8.\\
+
+				C.
+				\begin{lstlisting}[language=C]
+up->e2.next->e1.y=*(up->e2.next->e1.p)-up->e2.x;
+				\end{lstlisting}
+
+			\subsection{3.68}
+				\begin{lstlisting}[language=C]
+#define L 10
+
+void good_echo(){
+	char buf[L];
+	char *p;
+	while(fgets(buf, L, stdin)) {
+		for(p = buf; *p; p++) {
+			putchar(*p);
+			if(*p == '\n') return;
+		}
+	}
+}
+				\end{lstlisting}
+
+			\subsection{3.70}
+				A.
+				\begin{lstlisting}[language=C]
+long traverse(tree_ptr tp) {
+	long rax = 1LL << 63;
+	long rbx, r12;
+	if(tp) {
+		rbx = tp->val;
+		r12 = traverse(tp->left);
+		rax = traverse(tp->right);
+		rax = r12 >= rax ? r12 : rax;
+		rax = rax < rbx ? rbx : rax;
+	}
+	return rax;
+}
+				\end{lstlisting}
+
+				B. Find the maximum value in the binary tree whose root is tp.\\
+
+	\end {CJK*}
+\end {document}
+

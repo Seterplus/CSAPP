@@ -1,0 +1,89 @@
+\documentclass {article}
+\usepackage {geometry}
+\usepackage {CJK}
+\usepackage {amsmath}
+\usepackage {amssymb}
+\usepackage {indentfirst}
+\usepackage {listings}
+\usepackage {courier}
+\usepackage[table,xcdraw]{xcolor}
+
+\lstset{basicstyle=\ttfamily,breaklines=true,numbers=left}
+
+\begin{document}
+  \begin {CJK*} {UTF8} {gbsn}
+    \title {\textbf {\Huge Homework 10}}
+		\author {郭天魁 \\ 信息科学技术学院 \\ 1300012790}
+
+		\maketitle
+
+		\section{Homework 10}
+			\subsection{6.23}
+				容量$V=C\cdot xr\cdot (1-x)r$，其中$C$为一常数，易知$x=0.5$时取到最大值。\\
+
+			\subsection{6.25}
+				A.
+
+				$T_{\text{max rotation}}=\dfrac{1}{\text{RPM}}\cdot \dfrac{60000\text{ms}}{1\text{min}}=4\text{ms},$
+
+				$T_{\text{avg rotation}}=\dfrac{1}{2}T_{\text{max rotation}}=2\text{ms},$
+
+				按照书上6.4的计算方式，2MB的文件包含4000个512-byte的逻辑块。
+
+				在最好的情况下，当找到第一个扇区后，磁盘只需要转4圈来读取所有块即可，则读这个文件的总时间为$T_{\text{avg seek}}+T_{\text{avg rotation}}+4*T_{\text{max rotation}}=22\text{ms}.$\\
+
+				B.
+
+				按照书上6.4的计算方式，总时间为$4000*(T_{\text{avg seek}}+T_{\text{avg rotation}})=24000\text{ms},$
+			
+				$T_{\text{transfer}}=4*T_{\text{max rotation}}=16\text{ms}$因为太小而不需要计算在内。\\
+
+			\subsection{6.27}
+				\begin{table}[h]
+					\begin{tabular}{ccccccccc}
+						Cache & $m$ & $C$                                       & $B$                                     & $E$                                    & $S$                                      & $t$                                     & $s$                                    & $b$                                    \\ \hline
+						1.    & 32  & {\color[HTML]{34CDF9} $\underline{2048}$} & 8                                       & 1                                      & {\color[HTML]{34CDF9} $\underline{256}$} & 21                                      & 8                                      & 3                                      \\
+						2.    & 32  & 2048                                      & {\color[HTML]{34CDF9} $\underline{4}$}  & {\color[HTML]{34CDF9} $\underline{4}$} & 128                                      & 23                                      & 7                                      & 2                                      \\
+						3.    & 32  & 1024                                      & 2                                       & 8                                      & 64                                       & {\color[HTML]{34CDF9} $\underline{25}$} & {\color[HTML]{34CDF9} $\underline{6}$} & 1                                      \\
+						4.    & 32  & 1024                                      & {\color[HTML]{34CDF9} $\underline{32}$} & 2                                      & 16                                       & 23                                      & 4                                      & {\color[HTML]{34CDF9} $\underline{5}$}
+					\end{tabular}
+				\end{table}
+
+			\subsection{6.29}
+				A. Nothing.\\
+
+				B. 0x18F0, 0x18F1, 0x18F2, 0x18F3, 0xB0, 0xB1, 0xB2, 0xB3.\\
+
+				C. 0xE34, 0xE35, 0xE36, 0xE37.\\
+
+				D. 0x1BDC, 0x1BDD, 0x1BDE, 0x1BDF.\\
+
+			\subsection{6.46}
+				\begin{lstlisting}[language=C]
+void transpose_fast(int *dst, int *src, int dim) {
+	int i, j, k, l, si, sj;
+#define blocksizex 800
+#define blocksizey 400
+#define min(x,y) ((x) < (y) ? (x) : (y))
+	for (i = 0; i < dim; i += blocksizex) {
+		for (j = 0; j < dim; j += blocksizey) {
+			si = min(i + blocksizex, dim);
+			sj = min(j + blocksizey, dim) - 1;
+			for (k = i; k < si; k++) {
+				for (l = j; l < sj; l += 2) {
+					dst[l*dim + k] = src[k*dim + l];
+					dst[(l + 1)*dim + k] = src[k*dim + l + 1];
+				}
+				if (l == sj) {
+					dst[l*dim + k] = src[k*dim + l];
+				}
+			}
+		}
+	}
+}
+				\end{lstlisting}
+				与原函数相比，加速比稳定在2.8以上。\\
+
+  \end {CJK*}
+\end {document}
+

@@ -1,0 +1,724 @@
+\documentclass {article}
+\usepackage {geometry}
+\usepackage {CJK}
+\usepackage {amsmath}
+\usepackage {amssymb}
+\usepackage {indentfirst}
+\usepackage {listings}
+\usepackage {courier}
+
+\lstset{basicstyle=\ttfamily,breaklines=true,numbers=left}
+
+\lstdefinelanguage
+	[Y86]{Assembler}
+	[x86masm]{Assembler}
+	{morekeywords={irmovl,pushl,popl,addl,subl,rrmovl,rmmovl,halt,mrmovl,andl,xorl,cmovl,.long,.pos}}
+
+\begin{document}
+  \begin {CJK*} {UTF8} {gbsn}
+    \title {\textbf {\Huge Homework 7}}
+		\author {郭天魁 \\ 信息科学技术学院 \\ 1300012790}
+
+		\maketitle
+
+	 \section{Homework 7}
+			\subsection{4.43}
+				A. 这段代码将push执行前\%esp$-4$的值，且会修改CFLAGS。\\
+
+				B.
+				\begin{lstlisting}[language={[x86masm]Assembler}]
+movl REG,-4(%esp)
+leal -4(%esp),%esp
+				\end{lstlisting}
+
+			\subsection{4.45}
+				A.
+				\begin{lstlisting}[language=C]
+void bubble_p(int *data, int count) {
+	int i, last;
+	int *p1, *p2;
+	for (last = count-1; last > 0; last--) {
+		for (i = 0; i < last; i++) {
+			p1 = data + i;
+			p2 = p1 + 1;
+			if (*p2 < *p1) {
+				/* Swap adjacent elements */
+				int t = *p2;
+				*p2 = *p1;
+				*p1 = t;
+			}
+		}
+	}
+}
+
+int a[] = {4,3,9,1,0};
+
+int main() {
+	int i;
+	bubble_p(a, 5);
+	for(i = 0; i < 4; i++)
+		if(a[i] > a[i+1])
+			return 1;
+	return 0;
+}
+				\end{lstlisting}
+
+				B.
+				\begin{lstlisting}[language={[Y86]Assembler}]
+	.pos 0
+init:	irmovl Stack, %esp
+	irmovl Stack, %ebp
+	call Main
+	halt
+
+bubble_p:
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	mrmovl	20(%esp), %edi
+	irmovl	$1, %eax
+	rrmovl	%edi, %esi
+	subl	%eax, %esi
+	mrmovl	16(%esp), %eax
+	andl	%esi, %esi
+	jle	L1
+	rrmovl	%eax, %edi
+	rrmovl	%esi, %ebx
+	addl	%ebx, %ebx
+	addl	%ebx, %ebx
+	addl	%eax, %ebx
+	jmp	L3
+L7:
+	mrmovl	4(%eax), %edx
+	mrmovl	(%eax), %ecx
+	pushl	%edx
+	subl	%ecx, %edx
+	popl	%edx
+	jge	L4
+	rmmovl	%ecx, 4(%eax)
+	rmmovl	%edx, (%eax)
+L4:
+	pushl	%ebx
+	irmovl	$4, %ebx
+	addl	%ebx, %eax
+	popl	%ebx
+	pushl	%eax
+	subl	%ebx, %eax
+	popl	%eax
+	jne	L7
+L6:
+	pushl	%eax
+	irmovl	$4, %eax
+	subl	%eax, %ebx
+	irmovl	$1, %eax
+	subl	%eax, %esi
+	popl	%eax
+	je	L1
+L3:
+	andl	%esi, %esi
+	jle	L6
+	rrmovl	%edi, %eax
+	jmp	L7
+L1:
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	ret
+Main:
+	irmovl	$8, %eax
+	subl	%eax, %esp
+	irmovl	$5, %eax
+	rmmovl	%eax, 4(%esp)
+	irmovl	$a, %eax
+	rmmovl	%eax, (%esp)
+	call	bubble_p
+	irmovl	$8, %eax
+	addl	%eax, %esp
+	xorl	%eax, %eax
+	ret
+
+	.align 4
+a:
+	.long	4
+	.long	3
+	.long	9
+	.long	1
+	.long	0
+
+	.pos 0x1000
+Stack:
+				\end{lstlisting}
+
+				输出为：
+				\begin{lstlisting}
+Stopped in 235 steps at PC = 0x11.  Status 'HLT', CC Z=1 S=0 O=0
+
+Changes to registers:
+%ecx:	0x00000000	0x00000001
+%esp:	0x00000000	0x00001000
+%ebp:	0x00000000	0x00001000
+
+Changes to memory:
+0x00dc:	0x00000004	0x00000000
+0x00e0:	0x00000003	0x00000001
+0x00e4:	0x00000009	0x00000003
+0x00e8:	0x00000001	0x00000004
+0x00ec:	0x00000000	0x00000009
+0x0fe0:	0x00000000	0x000000e0
+0x0ff0:	0x00000000	0x000000d1
+0x0ff4:	0x00000000	0x000000dc
+0x0ff8:	0x00000000	0x00000005
+0x0ffc:	0x00000000	0x00000011
+				\end{lstlisting}
+
+				可以看出内存中的值已被排序。\\
+
+			\subsection{4.46}
+				\begin{lstlisting}[language={[Y86]Assembler}]
+	.pos 0
+init:
+	irmovl Stack, %esp
+	irmovl Stack, %ebp
+	call Main
+	halt
+
+bubble_p:
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	mrmovl	20(%esp), %edi
+	irmovl	$1, %eax
+	rrmovl	%edi, %esi
+	subl	%eax, %esi
+	mrmovl	16(%esp), %eax
+	andl	%esi, %esi
+	jle	L1
+	rrmovl	%eax, %edi
+	rrmovl	%esi, %ebx
+	addl	%ebx, %ebx
+	addl	%ebx, %ebx
+	addl	%eax, %ebx
+	jmp	L3
+L7:
+	mrmovl	4(%eax), %edx
+	mrmovl	(%eax), %ecx
+	pushl	%ebx
+	pushl	%edx
+	subl	%ecx, %edx
+	popl	%edx
+	cmovl	%ecx, %ebx
+	cmovl	%edx, %ecx
+	cmovl	%ebx, %edx
+	rmmovl	%edx, 4(%eax)
+	rmmovl	%ecx, (%eax)
+	irmovl	$4, %ebx
+	addl	%ebx, %eax
+	popl	%ebx
+	pushl	%eax
+	subl	%ebx, %eax
+	popl	%eax
+	jne	L7
+L6:
+	pushl	%eax
+	irmovl	$4, %eax
+	subl	%eax, %ebx
+	irmovl	$1, %eax
+	subl	%eax, %esi
+	popl	%eax
+	je	L1
+L3:
+	andl	%esi, %esi
+	jle	L6
+	rrmovl	%edi, %eax
+	jmp	L7
+L1:
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	ret
+Main:
+	irmovl	$8, %eax
+	subl	%eax, %esp
+	irmovl	$5, %eax
+	rmmovl	%eax, 4(%esp)
+	irmovl	$a, %eax
+	rmmovl	%eax, (%esp)
+	call	bubble_p
+	irmovl	$8, %eax
+	addl	%eax, %esp
+	xorl	%eax, %eax
+	ret
+
+	.align 4
+a:
+	.long	4
+	.long	3
+	.long	9
+	.long	1
+	.long	0
+
+	.pos 0x1000
+Stack:
+				\end{lstlisting}
+
+			\subsection{4.49}
+				在实验材料中的适当位置添加IIADDL即可。
+				\begin{lstlisting}
+#/* $begin seq-all-hcl */
+
+####################################################################
+
+#  HCL Description of Control for Single Cycle Y86 Processor SEQ   #
+
+#  Copyright (C) Randal E. Bryant, David R. O'Hallaron, 2010       #
+
+####################################################################
+
+
+
+## Your task is to implement the iaddl and leave instructions
+
+## The file contains a declaration of the icodes
+
+## for iaddl (IIADDL) and leave (ILEAVE).
+
+## Your job is to add the rest of the logic to make it work
+
+
+
+####################################################################
+
+#    C Include's.  Don't alter these                               #
+
+####################################################################
+
+
+
+quote '#include <stdio.h>'
+
+quote '#include "isa.h"'
+
+quote '#include "sim.h"'
+
+quote 'int sim_main(int argc, char *argv[]);'
+
+quote 'int gen_pc(){return 0;}'
+
+quote 'int main(int argc, char *argv[])'
+
+quote '  {plusmode=0;return sim_main(argc,argv);}'
+
+
+
+####################################################################
+
+#    Declarations.  Do not change/remove/delete any of these       #
+
+####################################################################
+
+
+
+##### Symbolic representation of Y86 Instruction Codes #############
+
+intsig INOP 	'I_NOP'
+
+intsig IHALT	'I_HALT'
+
+intsig IRRMOVL	'I_RRMOVL'
+
+intsig IIRMOVL	'I_IRMOVL'
+
+intsig IRMMOVL	'I_RMMOVL'
+
+intsig IMRMOVL	'I_MRMOVL'
+
+intsig IOPL	'I_ALU'
+
+intsig IJXX	'I_JMP'
+
+intsig ICALL	'I_CALL'
+
+intsig IRET	'I_RET'
+
+intsig IPUSHL	'I_PUSHL'
+
+intsig IPOPL	'I_POPL'
+
+# Instruction code for iaddl instruction
+
+intsig IIADDL	'I_IADDL'
+
+# Instruction code for leave instruction
+
+intsig ILEAVE	'I_LEAVE'
+
+
+
+##### Symbolic represenations of Y86 function codes                  #####
+
+intsig FNONE    'F_NONE'        # Default function code
+
+
+
+##### Symbolic representation of Y86 Registers referenced explicitly #####
+
+intsig RESP     'REG_ESP'    	# Stack Pointer
+
+intsig REBP     'REG_EBP'    	# Frame Pointer
+
+intsig RNONE    'REG_NONE'   	# Special value indicating "no register"
+
+
+
+##### ALU Functions referenced explicitly                            #####
+
+intsig ALUADD	'A_ADD'		# ALU should add its arguments
+
+
+
+##### Possible instruction status values                             #####
+
+intsig SAOK	'STAT_AOK'		# Normal execution
+
+intsig SADR	'STAT_ADR'	# Invalid memory address
+
+intsig SINS	'STAT_INS'	# Invalid instruction
+
+intsig SHLT	'STAT_HLT'	# Halt instruction encountered
+
+
+
+##### Signals that can be referenced by control logic ####################
+
+
+
+##### Fetch stage inputs		#####
+
+intsig pc 'pc'				# Program counter
+
+##### Fetch stage computations		#####
+
+intsig imem_icode 'imem_icode'		# icode field from instruction memory
+
+intsig imem_ifun  'imem_ifun' 		# ifun field from instruction memory
+
+intsig icode	  'icode'		# Instruction control code
+
+intsig ifun	  'ifun'		# Instruction function
+
+intsig rA	  'ra'			# rA field from instruction
+
+intsig rB	  'rb'			# rB field from instruction
+
+intsig valC	  'valc'		# Constant from instruction
+
+intsig valP	  'valp'		# Address of following instruction
+
+boolsig imem_error 'imem_error'		# Error signal from instruction memory
+
+boolsig instr_valid 'instr_valid'	# Is fetched instruction valid?
+
+
+
+##### Decode stage computations		#####
+
+intsig valA	'vala'			# Value from register A port
+
+intsig valB	'valb'			# Value from register B port
+
+
+
+##### Execute stage computations	#####
+
+intsig valE	'vale'			# Value computed by ALU
+
+boolsig Cnd	'cond'			# Branch test
+
+
+
+##### Memory stage computations		#####
+
+intsig valM	'valm'			# Value read from memory
+
+boolsig dmem_error 'dmem_error'		# Error signal from data memory
+
+
+
+
+
+####################################################################
+
+#    Control Signal Definitions.                                   #
+
+####################################################################
+
+
+
+################ Fetch Stage     ###################################
+
+
+
+# Determine instruction code
+
+int icode = [
+
+	imem_error: INOP;
+
+	1: imem_icode;		# Default: get from instruction memory
+
+];
+
+
+
+# Determine instruction function
+
+int ifun = [
+
+	imem_error: FNONE;
+
+	1: imem_ifun;		# Default: get from instruction memory
+
+];
+
+
+
+bool instr_valid = icode in 
+
+	{ INOP, IHALT, IRRMOVL, IIRMOVL, IRMMOVL, IMRMOVL,
+
+	       IOPL, IJXX, ICALL, IRET, IPUSHL, IPOPL, IIADDL };
+
+
+
+# Does fetched instruction require a regid byte?
+
+bool need_regids =
+
+	icode in { IRRMOVL, IOPL, IPUSHL, IPOPL, 
+
+		     IIRMOVL, IRMMOVL, IMRMOVL, IIADDL };
+
+
+
+# Does fetched instruction require a constant word?
+
+bool need_valC =
+
+	icode in { IIRMOVL, IRMMOVL, IMRMOVL, IJXX, ICALL, IIADDL };
+
+
+
+################ Decode Stage    ###################################
+
+
+
+## What register should be used as the A source?
+
+int srcA = [
+
+	icode in { IRRMOVL, IRMMOVL, IOPL, IPUSHL  } : rA;
+
+	icode in { IPOPL, IRET } : RESP;
+
+	1 : RNONE; # Don't need register
+
+];
+
+
+
+## What register should be used as the B source?
+
+int srcB = [
+
+	icode in { IOPL, IRMMOVL, IMRMOVL, IIADDL  } : rB;
+
+	icode in { IPUSHL, IPOPL, ICALL, IRET } : RESP;
+
+	1 : RNONE;  # Don't need register
+
+];
+
+
+
+## What register should be used as the E destination?
+
+int dstE = [
+
+	icode in { IRRMOVL } && Cnd : rB;
+
+	icode in { IIRMOVL, IOPL, IIADDL } : rB;
+
+	icode in { IPUSHL, IPOPL, ICALL, IRET } : RESP;
+
+	1 : RNONE;  # Don't write any register
+
+];
+
+
+
+## What register should be used as the M destination?
+
+int dstM = [
+
+	icode in { IMRMOVL, IPOPL } : rA;
+
+	1 : RNONE;  # Don't write any register
+
+];
+
+
+
+################ Execute Stage   ###################################
+
+
+
+## Select input A to ALU
+
+int aluA = [
+
+	icode in { IRRMOVL, IOPL } : valA;
+
+	icode in { IIRMOVL, IRMMOVL, IMRMOVL, IIADDL } : valC;
+
+	icode in { ICALL, IPUSHL } : -4;
+
+	icode in { IRET, IPOPL } : 4;
+
+	# Other instructions don't need ALU
+
+];
+
+
+
+## Select input B to ALU
+
+int aluB = [
+
+	icode in { IRMMOVL, IMRMOVL, IOPL, ICALL, 
+
+		      IPUSHL, IRET, IPOPL, IIADDL } : valB;
+
+	icode in { IRRMOVL, IIRMOVL } : 0;
+
+	# Other instructions don't need ALU
+
+];
+
+
+
+## Set the ALU function
+
+int alufun = [
+
+	icode == IOPL : ifun;
+
+	1 : ALUADD;
+
+];
+
+
+
+## Should the condition codes be updated?
+
+bool set_cc = icode in { IOPL, IIADDL };
+
+
+
+################ Memory Stage    ###################################
+
+
+
+## Set read control signal
+
+bool mem_read = icode in { IMRMOVL, IPOPL, IRET };
+
+
+
+## Set write control signal
+
+bool mem_write = icode in { IRMMOVL, IPUSHL, ICALL };
+
+
+
+## Select memory address
+
+int mem_addr = [
+
+	icode in { IRMMOVL, IPUSHL, ICALL, IMRMOVL } : valE;
+
+	icode in { IPOPL, IRET } : valA;
+
+	# Other instructions don't need address
+
+];
+
+
+
+## Select memory input data
+
+int mem_data = [
+
+	# Value from register
+
+	icode in { IRMMOVL, IPUSHL } : valA;
+
+	# Return PC
+
+	icode == ICALL : valP;
+
+	# Default: Don't write anything
+
+];
+
+
+
+## Determine instruction status
+
+int Stat = [
+
+	imem_error || dmem_error : SADR;
+
+	!instr_valid: SINS;
+
+	icode == IHALT : SHLT;
+
+	1 : SAOK;
+
+];
+
+
+
+################ Program Counter Update ############################
+
+
+
+## What address should instruction be fetched at
+
+
+
+int new_pc = [
+
+	# Call.  Use instruction constant
+
+	icode == ICALL : valC;
+
+	# Taken branch.  Use instruction constant
+
+	icode == IJXX && Cnd : valC;
+
+	# Completion of RET instruction.  Use value from stack
+
+	icode == IRET : valM;
+
+	# Default: Use incremented PC
+
+	1 : valP;
+
+];
+
+#/* $end seq-all-hcl */
+				\end{lstlisting}
+
+  \end {CJK*}
+\end {document}
+

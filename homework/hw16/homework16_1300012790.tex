@@ -1,0 +1,101 @@
+\documentclass {article}
+\usepackage {geometry}
+\usepackage {CJK}
+\usepackage {amsmath}
+\usepackage {amssymb}
+\usepackage {indentfirst}
+\usepackage {listings}
+\usepackage {courier}
+
+\lstset{basicstyle=\ttfamily,breaklines=true,numbers=left}
+
+\begin{document}
+  \begin {CJK*} {UTF8} {gbsn}
+    \title {\textbf {\Huge Homework 16}}
+		\author {郭天魁 \\ 信息科学技术学院 \\ 1300012790}
+
+		\maketitle
+		
+		\section{Homework 16}
+			\subsection{9.15}
+				\begin{table}[h]
+					\begin{tabular}{lcc}
+					Request    & Block size & Block header \\ \hline
+					malloc(3)  & 8          & 0x9          \\
+					malloc(11) & 16         & 0x11         \\
+					malloc(20) & 24         & 0x19         \\
+					malloc(21) & 32         & 0x21        
+					\end{tabular}
+				\end{table}
+
+			\subsection{9.16}
+				\begin{table}[h]
+					\begin{tabular}{lllc}
+					Alignment   & Allocated block       & Free block        & Minimum block size \\ \hline
+					Single word & Header and footer     & Header and footer & 16                 \\
+					Single word & Header, but no footer & Header and footer & 16                 \\
+					Double word & Header and footer     & Header and footer & 16                 \\
+					Double word & Header, but no footer & Header and footer & 16                
+					\end{tabular}
+				\end{table}
+
+			\subsection{9.17}
+				主要修改mm\_init, find\_fit, coalesce三个函数，新加一个全局变量last\_bp。
+				
+				\begin{lstlisting}[language=C]
+static void *last_bp;
+int mm_init(void)
+{
+	// ...
+	last_bp = heap_listp;
+}
+static void *find_fit(size_t asize)
+{
+	/* Next fit search */
+	void *bp = last_bp;
+	do {
+		if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp)))) {
+			return (last_bp = bp);
+		}
+		bp = GET_SIZE(HDRP(bp)) > 0 ? NEXT_BLKP(bp) : heap_listp;
+	} while (bp != last_bp);
+	return NULL; /* No fit */
+}
+static void *coalesce(void *bp)
+{
+	// ...
+	else if (!prev_alloc && next_alloc) { /* Case 3 */
+		size += GET_SIZE(HDRP(PREV_BLKP(bp)));
+		PUT(FTRP(bp), PACK(size, 0));
+		PUT(HDRP(PREV_BLKP(bp)), PACK(size, 0));
+		if (last_bp == bp)
+		{
+			last_bp = PREV_BLKP(bp);
+		}
+		bp = PREV_BLKP(bp);
+	}
+	else { /* Case 4 */
+		size += GET_SIZE(HDRP(PREV_BLKP(bp))) +
+		GET_SIZE(FTRP(NEXT_BLKP(bp)));
+		PUT(HDRP(PREV_BLKP(bp)), PACK(size, 0));
+		PUT(FTRP(NEXT_BLKP(bp)), PACK(size, 0));
+		if (last_bp == bp)
+		{
+			last_bp = PREV_BLKP(bp);
+		}
+		bp = PREV_BLKP(bp);
+	}
+	return bp;
+}
+				\end{lstlisting}
+				
+			\subsection{9.15}
+				1. a
+				
+				2. d
+				
+				3. b
+
+  \end {CJK*}
+\end {document}
+

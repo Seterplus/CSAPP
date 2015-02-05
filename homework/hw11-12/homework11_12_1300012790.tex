@@ -1,0 +1,80 @@
+\documentclass {article}
+\usepackage {geometry}
+\usepackage {CJK}
+\usepackage {amsmath}
+\usepackage {amssymb}
+\usepackage {indentfirst}
+\usepackage {listings}
+\usepackage {courier}
+
+\begin{document}
+  \begin {CJK*} {UTF8} {gbsn}
+    \title {\textbf {\Huge Homework 11 \& Homework 12}}
+		\author {郭天魁 \\ 信息科学技术学院 \\ 1300012790}
+
+		\maketitle
+		
+		\section{Homework 11}
+			\subsection{7.6}
+				\begin{table}[h]
+					\begin{tabular}{lcccc}
+						Symbol & swap.o .symtab entry? & Symbol type & Module where defined & Section \\ \hline
+						buf    & Y                     & extern      & main.o               & .data   \\
+						bufp0  & Y                     & global      & swap.o               & .data   \\
+						bufp1  & Y                     & local       & swap.o               & .bss    \\
+						swap   & Y                     & global      & swap.o               & .text   \\
+						temp   & N                     & -           & -                    & -       \\
+						incr   & Y                     & local       & swap.o               & .text   \\
+						count  & Y                     & local       & swap.o               & .bss   
+					\end{tabular}
+				\end{table}
+				其中count初始化为0，经过测试的确在.bss中。
+			
+			\subsection{7.7}
+				在bar5.c中的double x前加入static修饰符。
+				
+			\subsection{7.12}
+				\begin{table}[h]
+					\begin{tabular}{ccc}
+						Line \# in Fig. 7.10 & Address    & Value      \\ \hline
+						15                   & 0x080483CB & 0x0804945C \\
+						16                   & 0x080483D0 & 0x08049458 \\
+						18                   & 0x080483D8 & 0x08049548 \\
+						18                   & 0x080483DC & 0x08049458 \\
+						23                   & 0x080483E7 & 0x08049548
+					\end{tabular}
+				\end{table}
+				
+			\subsection{7.15}
+				A. 分别为1561和460个。
+				
+				B. 会少.debug和.line部分，.strtab也可能不同。
+				
+				C. linux-vdso.so.1, libc.so.6, ld-linux-x86-64.so.2.
+
+		\section{Homework 12}
+			\subsection{8.9}
+				\begin{table}[h]
+					\begin{tabular}{cc}
+						Process pair & Concurrent? \\ \hline
+						AB           & N           \\
+						AC           & Y           \\
+						AD           & Y           \\
+						BC           & Y           \\
+						BD           & Y           \\
+						CD           & Y          
+					\end{tabular}
+				\end{table}
+
+			\subsection{8.12}
+				8
+
+			\subsection{8.18}
+				ACE
+
+			\subsection{8.19}
+				$2^n$
+
+  \end {CJK*}
+\end {document}
+

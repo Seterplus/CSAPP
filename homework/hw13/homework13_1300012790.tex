@@ -1,0 +1,72 @@
+\documentclass {article}
+\usepackage {geometry}
+\usepackage {CJK}
+\usepackage {amsmath}
+\usepackage {amssymb}
+\usepackage {indentfirst}
+\usepackage {listings}
+\usepackage {courier}
+
+\lstset{basicstyle=\ttfamily,breaklines=true,numbers=left}
+
+\begin{document}
+  \begin {CJK*} {UTF8} {gbsn}
+    \title {\textbf {\Huge Homework 13}}
+		\author {郭天魁 \\ 信息科学技术学院 \\ 1300012790}
+
+		\maketitle
+		
+
+		\section{Homework 13}
+			\subsection{8.10}
+				setjmp:		C. Called once, returns one or more times.
+
+				longjmp:	B. Called once, never returns.
+
+				execve:		B. Called once, never returns.
+
+				fork:			A. Called once, returns twice.
+
+			\subsection{8.23}
+				第一个SIGUSR2被成功接收并sleep，此时第二个SIGUSR2到达，但信号处理程序还在处理第一个SIGUSR2，这导致其被阻塞，加入等待队列中。之后3个SIGUSR2均被舍弃。当第一个SIGUSR2的sleep结束后，父进程接收队列中的第二个SIGUSR2并处理，故总共只处理了两个SIGUSR2信号。
+
+			\subsection{8.25}
+				\begin{lstlisting}[language=C]
+#include <stdio.h>
+#include <unistd.h>
+#include <signal.h>
+#include <setjmp.h>
+
+sigjmp_buf env;
+void handler(int sig) {
+	signal(SIGALRM, SIG_DFL);
+	siglongjmp(env, 1);
+}
+char *tfgets(char *s, int size, FILE *stream) {
+	signal(SIGALRM, handler);
+	alarm(5);
+	int val = sigsetjmp(env, 1);
+	if (val)
+		return NULL;
+	else {
+		char *r = fgets(s, size, stream);
+		alarm(0);
+		signal(SIGALRM, SIG_DFL);
+		return r;
+	}
+}
+
+char s[100];
+
+int main() {
+	char *p = tfgets(s, 100, stdin);
+	puts(p ? p : "TIMEOUT");
+	p = tfgets(s, 100, stdin);
+	puts(p ? p : "TIMEOUT");
+	return 0;
+}
+				\end{lstlisting}
+
+  \end {CJK*}
+\end {document}
+

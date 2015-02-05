@@ -1,0 +1,191 @@
+\documentclass {article}
+\usepackage {geometry}
+\usepackage {CJK}
+\usepackage {amsmath}
+\usepackage {amssymb}
+\usepackage {indentfirst}
+\usepackage {listings}
+\usepackage {courier}
+
+\lstset{basicstyle=\ttfamily,breaklines=true,numbers=left}
+
+\begin{document}
+  \begin {CJK*} {UTF8} {gbsn}
+    \title {\textbf {\Huge Homework 14 \& Homework 15}}
+		\author {郭天魁 \\ 信息科学技术学院 \\ 1300012790}
+
+		\maketitle
+		
+		\section{Homework 14}
+			\subsection{10.6}
+				fd2 = 4
+			
+			\subsection{10.7}
+				\begin{lstlisting}[language=C]
+#include "csapp.h"
+
+int main(int argc, char **argv) {
+	int n;
+	rio_t rio;
+	char buf[MAXBUF];
+
+	Rio_readinitb(&rio, STDIN_FILENO);
+	while ((n = Rio_readnb(&rio, buf, MAXBUF)) != 0)
+		Rio_writen(STDOUT_FILENO, buf, n);
+
+	return 0;
+}
+				\end{lstlisting}
+
+			\subsection{10.9}
+				只考虑input（路径在input\_file中）的情况，output同理。
+
+				\begin{lstlisting}[language=C]
+if (Fork() == 0) { /* Child */
+	int input_fd = Open(input_file, O_RDONLY, 0);
+	Dup2(input_fd, STDIN_FILENO);
+	Close(input_fd);
+	Execve("fstatcheck", argv, envp);
+}
+				\end{lstlisting}
+
+				更好的做法是利用fcntl提供的close-on-exec flag或更方便的O\_CLOEXEC标记，即
+
+				\begin{lstlisting}[language=C]
+if (Fork() == 0) { /* Child */
+	int input_fd = Open(input_file, O_RDONLY | O_CLOEXEC, 0);
+	Dup2(input_fd, STDIN_FILENO);
+	Execve("fstatcheck", argv, envp);
+}
+				\end{lstlisting}
+				
+		\section{Homework 15}
+			\subsection{9.11}
+				A. Virtual address format
+				\begin{table}[!htbp]
+					\begin{tabular}{cccccccccccccc}
+						13                      & 12                     & 11                     & 10                     & 9                      & 8                      & 7                      & 6                      & 5                      & 4                      & 3                      & 2                      & 1                      & 0                      \\ \hline
+						\multicolumn{1}{|c|}{\,0\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,1\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,1\,} & \multicolumn{1}{c|}{\,1\,} & \multicolumn{1}{c|}{\,1\,} & \multicolumn{1}{c|}{\,1\,} & \multicolumn{1}{c|}{\,1\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,0\,} \\ \hline
+					\end{tabular}
+				\end{table}
+
+				B. Address translation
+				\begin{table}[!htbp]
+					\begin{tabular}{lc}
+						Parameter   & Value \\ \hline
+						VPN         & 0x9   \\
+						TLB index   & 0x1   \\
+						TLB tag     & 0x2   \\
+						TLB hit?    & N     \\
+						Page fault? & N     \\
+						PPN         & 0x17 
+					\end{tabular}
+				\end{table}
+
+				C. Physical address format
+				\begin{table}[!htbp]
+					\begin{tabular}{cccccccccccc}
+						11                     & 10                     & 9                      & 8                      & 7                      & 6                      & 5                      & 4                      & 3                      & 2                      & 1                      & 0                      \\ \hline
+						\multicolumn{1}{|c|}{\,0\,} & \multicolumn{1}{c|}{\,1\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,1\,} & \multicolumn{1}{c|}{\,1\,} & \multicolumn{1}{c|}{\,1\,} & \multicolumn{1}{c|}{\,1\,} & \multicolumn{1}{c|}{\,1\,} & \multicolumn{1}{c|}{\,1\,} & \multicolumn{1}{c|}{\,1\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,0\,} \\ \hline
+					\end{tabular}
+				\end{table}
+
+				D. Physical memory reference
+				\begin{table}[!htbp]
+					\begin{tabular}{lc}
+						Parameter           & Value \\ \hline
+						Byte offset         & 0     \\
+						Cache index         & 0xF   \\
+						Cache tag           & 0x17  \\
+						Cache hit?          & N     \\
+						Cache byte returned & -    
+					\end{tabular}
+				\end{table}
+
+			\newpage
+
+			\subsection{9.12}
+				A. Virtual address format
+				\begin{table}[!htbp]
+					\begin{tabular}{cccccccccccccc}
+						13                      & 12                     & 11                     & 10                     & 9                      & 8                      & 7                      & 6                      & 5                      & 4                      & 3                      & 2                      & 1                      & 0                      \\ \hline
+						\multicolumn{1}{|c|}{\,0\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,1\,} & \multicolumn{1}{c|}{\,1\,} & \multicolumn{1}{c|}{\,1\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,1\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,1\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,1\,} \\ \hline
+					\end{tabular}
+				\end{table}
+
+				B. Address translation
+				\begin{table}[!htbp]
+					\begin{tabular}{lc}
+						Parameter   & Value \\ \hline
+						VPN         & 0xE   \\
+						TLB index   & 0x2   \\
+						TLB tag     & 0x3   \\
+						TLB hit?    & N     \\
+						Page fault? & N     \\
+						PPN         & 0x11 
+					\end{tabular}
+				\end{table}
+
+				C. Physical address format
+				\begin{table}[!htbp]
+					\begin{tabular}{cccccccccccc}
+						11                     & 10                     & 9                      & 8                      & 7                      & 6                      & 5                      & 4                      & 3                      & 2                      & 1                      & 0                      \\ \hline
+						\multicolumn{1}{|c|}{\,0\,} & \multicolumn{1}{c|}{\,1\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,1\,} & \multicolumn{1}{c|}{\,1\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,1\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,1\,} \\ \hline
+					\end{tabular}
+				\end{table}
+
+				D. Physical memory reference
+				\begin{table}[!htbp]
+					\begin{tabular}{lc}
+						Parameter           & Value \\ \hline
+						Byte offset         & 1     \\
+						Cache index         & 0xA   \\
+						Cache tag           & 0x11  \\
+						Cache hit?          & N     \\
+						Cache byte returned & -    
+					\end{tabular}
+				\end{table}
+
+			\newpage
+
+			\subsection{9.13}
+				A. Virtual address format
+				\begin{table}[!htbp]
+					\begin{tabular}{cccccccccccccc}
+						13                      & 12                     & 11                     & 10                     & 9                      & 8                      & 7                      & 6                      & 5                      & 4                      & 3                      & 2                      & 1                      & 0                      \\ \hline
+						\multicolumn{1}{|c|}{\,0\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,1\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,0\,} & \multicolumn{1}{c|}{\,0\,} \\ \hline
+					\end{tabular}
+				\end{table}
+
+				B. Address translation
+				\begin{table}[!htbp]
+					\begin{tabular}{lc}
+						Parameter   & Value \\ \hline
+						VPN         & 0x1   \\
+						TLB index   & 0x1   \\
+						TLB tag     & 0x0   \\
+						TLB hit?    & N     \\
+						Page fault? & Y     \\
+						PPN         & - 
+					\end{tabular}
+				\end{table}
+
+			\subsection{9.14}
+				\begin{lstlisting}[language=C]
+#include <unistd.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+
+int main() {
+	int fd = open("hello.txt", O_RDWR);
+	char *content = mmap(NULL, 1, PROT_WRITE | PROT_READ, MAP_SHARED, fd, 0);
+	content[0] = 'J';
+	munmap(content, 1);
+	close(fd);
+	return 0;
+}
+				\end{lstlisting}
+
+  \end {CJK*}
+\end {document}
+

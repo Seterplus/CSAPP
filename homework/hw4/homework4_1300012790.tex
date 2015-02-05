@@ -1,0 +1,66 @@
+\documentclass {article}
+\usepackage {geometry}
+\usepackage {CJK}
+\usepackage {amsmath}
+\usepackage {amssymb}
+\usepackage {indentfirst}
+\usepackage {listings}
+\usepackage {courier}
+
+\lstset{basicstyle=\sffamily,breaklines=true,numbers=left}
+
+\begin{document}
+  \begin {CJK*} {UTF8} {gbsn}
+    \title {\textbf {\Huge Homework 4}}
+	\author {郭天魁 \\ 信息科学技术学院 \\ 1300012790}
+
+	\maketitle
+
+  \section{Homework 4}
+    \subsection{3.54}
+			\begin{lstlisting}[language=C]
+int decode2(int x, int y, int z) {
+	int edx = y - z;
+	int eax = edx << 31 >> 31;
+	edx *= x;
+	return edx ^ eax;
+}
+			\end{lstlisting}
+
+		\subsection{3.57}
+			\begin{lstlisting}[language=C]
+int cread(int *xp) {
+	int t = 0;
+	return *(xp ? xp : &t);
+}
+	  	\end{lstlisting}
+
+		\subsection{3.59}
+		  \begin{lstlisting}[language=C]
+int switch(int x, int n) {
+	int result = x;
+	
+	switch(n) {
+		case 50:
+		case 52:
+			result <<= 2;
+			break;
+		case 53:
+			result >>= 2;
+			break;
+		case 54:
+			result = result * 3;
+		case 55:
+			result *= result;
+		case 51:
+		default:
+			result += 10;
+	}
+
+	return result;
+}
+			\end{lstlisting}
+
+  \end {CJK*}
+\end {document}
+
