@@ -1,7 +1,7 @@
 CSAPP, Peking University
 =====
 
-大二ICS#1，大三助教，大四斗争失败，从此AFK（雾。
+大二ICS#1，大三助教，大四斗争失败沦为败犬从此AFK（雾。
 
 除了考试以外，好课。先祝大家玩得开心。
 
@@ -21,7 +21,7 @@ CSAPP, Peking University
 
 ### homework
 
-大二的作业，供参考。哦对了，不要忘了改名字啊！
+- 大二的作业，供参考。哦对了，不要忘了改名字啊！
 
 ### datalab/datalab-2015
 
